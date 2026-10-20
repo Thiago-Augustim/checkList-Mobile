@@ -21,16 +21,17 @@ class AuthViewModel extends ChangeNotifier {
 
   bool get estaAutenticado => _sessao != null;
 
-  Future<bool> login(String email, String senha) async {
+  Future<bool> login(String username, String senha) async {
     _isLoading = true;
     _erro = null;
     notifyListeners();
 
     try {
-      _sessao = await _repository.autenticar(email.trim(), senha);
+      _sessao = await _repository.autenticar(username.trim(), senha);
       return true;
     } catch (e) {
-      _erro = 'Falha ao autenticar: verifique se o backend Spring Boot está ativo.';
+      _erro =
+          'Falha ao autenticar: verifique o username/senha e se o backend está ativo.';
       return false;
     } finally {
       _isLoading = false;

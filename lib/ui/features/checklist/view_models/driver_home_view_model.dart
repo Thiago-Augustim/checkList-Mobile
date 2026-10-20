@@ -118,4 +118,11 @@ class DriverHomeViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> limparFilaLocal() async {
+    await _repository.limparFilaSincronizacao();
+    _mensagemStatus =
+        'Fila local do Hive limpa com sucesso. Pronto para novos testes!';
+    _atualizarEstadoDaFila();
+  }
 }

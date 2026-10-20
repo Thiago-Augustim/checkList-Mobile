@@ -11,13 +11,12 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  final _emailController =
-      TextEditingController(text: 'motorista@checklist.com.br');
+  final _usernameController = TextEditingController(text: 'motorista');
   final _senhaController = TextEditingController(text: 'senha123');
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _senhaController.dispose();
     super.dispose();
   }
@@ -103,10 +102,10 @@ class _LoginViewState extends State<LoginView> {
                           const SizedBox(height: 16),
                         ],
                         TextField(
-                          controller: _emailController,
+                          controller: _usernameController,
                           decoration: const InputDecoration(
-                            labelText: 'E-mail do Motorista',
-                            prefixIcon: Icon(Icons.email_outlined),
+                            labelText: 'Username do Motorista',
+                            prefixIcon: Icon(Icons.person_outline),
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -126,7 +125,7 @@ class _LoginViewState extends State<LoginView> {
                               ? null
                               : () {
                                   widget.viewModel.login(
-                                    _emailController.text,
+                                    _usernameController.text,
                                     _senhaController.text,
                                   );
                                 },

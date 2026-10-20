@@ -180,4 +180,46 @@ void main() {
       expect(repository.listarFotosPendentes(), isEmpty);
     },
   );
+
+  test(
+    'limparFilaSincronizacao deve esvaziar as caixas de checklists e fotos do Hive',
+    () async {
+      final repository = OfflineSyncRepository(
+        apiClient: ApiClient(),
+        hiveStorage: hiveStorage,
+      );
+
+      const checklist = ChecklistFilaItemModel(
+        id: 'chk-limpar-1',
+        templateId: 'tpl-1',
+        templateTitulo: 'Vistoria Teste',
+        veiculoId: 'v-1',
+        veiculoPlaca: 'ABC1D23',
+        kmVistoria: 1000,
+        realizadoEm: '2026-10-19T20:00:00Z',
+        respostas: [],
+      );
+
+      const foto = FotoFilaUploadModel(
+        id: 'foto-limpar-1',
+        checklistId: 'chk-limpar-1',
+        respostaId: 'resp-1',
+        capturadaEm: '2026-10-19T20:00:00Z',
+        bytesJpegBase64: 'dGVzdGU=',
+      );
+
+      await repository.salvarVistoriaNaFilaOffline(
+        checklist: checklist,
+        fotosComprimidas: [foto],
+      );
+
+      expect(repository.listarChecklistsPendentes(), hasLength(1));
+      expect(repository.listarFotosPendentes(), hasLength(1));
+
+      await repository.limparFilaSincronizacao();
+
+      expect(repository.listarChecklistsPendentes(), isEmpty);
+      expect(repository.listarFotosPendentes(), isEmpty);
+    },
+  );
 }

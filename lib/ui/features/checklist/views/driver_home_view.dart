@@ -60,6 +60,36 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     );
   }
 
+  Future<void> _confirmarLimparFila(BuildContext context) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Limpar Fila Local?'),
+        content: const Text(
+          'Deseja descartar todos os checklists e fotos pendentes na fila local do Hive? '
+          'Essa ação remove itens inválidos e permite reiniciar os testes do zero.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Limpar Tudo'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar == true && mounted) {
+      await widget.homeViewModel.limparFilaLocal();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -159,13 +189,17 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Fila de Sincronização Local (Hive)',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
+                          const Expanded(
+                            child: Text(
+                              'Fila de Sincronização Local (Hive)',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Chip(
                             label: Text(
                               '${vm.totalPendenciasNaFila} pendentes',
@@ -205,26 +239,46 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                         ),
                       ],
                       const SizedBox(height: 12),
-                      FilledButton.icon(
-                        onPressed: vm.sincronizando ||
-                                vm.totalPendenciasNaFila == 0
-                            ? null
-                            : vm.sincronizarFilaAgora,
-                        icon: vm.sincronizando
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Icon(Icons.sync),
-                        label: Text(
-                          vm.sincronizando
-                              ? 'Sincronizando Fila...'
-                              : 'Sincronizar Fila Agora (2 Etapas)',
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FilledButton.icon(
+                              onPressed: vm.sincronizando ||
+                                      vm.totalPendenciasNaFila == 0
+                                  ? null
+                                  : vm.sincronizarFilaAgora,
+                              icon: vm.sincronizando
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Icon(Icons.sync),
+                              label: Text(
+                                vm.sincronizando
+                                    ? 'Sincronizando Fila...'
+                                    : 'Sincronizar Fila Agora',
+                              ),
+                            ),
+                          ),
+                          if (vm.totalPendenciasNaFila > 0) ...[
+                            const SizedBox(width: 8),
+                            IconButton.filledTonal(
+                              tooltip: 'Limpar Fila do Hive',
+                              style: IconButton.styleFrom(
+                                foregroundColor: Colors.red.shade700,
+                                backgroundColor: Colors.red.shade50,
+                              ),
+                              onPressed: vm.sincronizando
+                                  ? null
+                                  : () => _confirmarLimparFila(context),
+                              icon: const Icon(Icons.delete_sweep_outlined),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),

@@ -3,12 +3,14 @@ import 'dart:convert';
 class UsuarioModel {
   final String id;
   final String nome;
+  final String username;
   final String email;
   final String perfil;
 
   const UsuarioModel({
     required this.id,
     required this.nome,
+    this.username = '',
     required this.email,
     required this.perfil,
   });
@@ -17,6 +19,7 @@ class UsuarioModel {
     return UsuarioModel(
       id: json['id'] as String,
       nome: json['nome'] as String,
+      username: json['username'] as String? ?? (json['email'] as String? ?? ''),
       email: json['email'] as String,
       perfil: json['perfil'] as String,
     );
@@ -25,6 +28,7 @@ class UsuarioModel {
   Map<String, dynamic> toJson() => {
         'id': id,
         'nome': nome,
+        'username': username,
         'email': email,
         'perfil': perfil,
       };

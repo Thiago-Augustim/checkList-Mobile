@@ -27,7 +27,7 @@ class ApiClient {
     return 'http://localhost:8080/api/v1';
   }
 
-  Future<AuthSessionModel> login(String email, String senha) async {
+  Future<AuthSessionModel> login(String username, String senha) async {
     final response = await _httpClient
         .post(
           Uri.parse('$baseUrl/auth/login'),
@@ -35,7 +35,7 @@ class ApiClient {
             HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
             HttpHeaders.acceptHeader: 'application/json',
           },
-          body: jsonEncode({'email': email, 'senha': senha}),
+          body: jsonEncode({'username': username, 'senha': senha}),
         )
         .timeout(const Duration(seconds: 10));
 

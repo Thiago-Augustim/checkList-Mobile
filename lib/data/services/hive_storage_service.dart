@@ -101,4 +101,12 @@ class HiveStorageService {
   Future<void> removerFotoDaFila(String fotoId) async {
     await _syncPhotosBox.delete(fotoId);
   }
+
+  // ===========================================================================
+  // Limpeza de Filas para Reset de Testes / Descarte de Itens Inválidos
+  // ===========================================================================
+  Future<void> limparFilasDeSincronizacao() async {
+    await _syncChecklistsBox.clear();
+    await _syncPhotosBox.clear();
+  }
 }

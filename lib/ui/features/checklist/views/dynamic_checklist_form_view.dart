@@ -135,7 +135,9 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
 
       for (final pergunta in widget.template.perguntas) {
         final respostaId = _uuid.v4();
-        final valor = (_valoresRespostas[pergunta.id] ?? '').trim();
+        final rawValor = (_valoresRespostas[pergunta.id] ?? '').trim();
+        // Se a pergunta era opcional e não foi preenchida, usamos 'N/A' para evitar erro de validação @NotBlank no Spring Boot
+        final valor = rawValor.isEmpty ? 'N/A' : rawValor;
         final avaria = pergunta.respostaDisparaAvaria(valor);
         final obsAvaria = _obsAvariaControllers[pergunta.id]?.text.trim();
         final bytesFotos = _fotosPorPergunta[pergunta.id] ?? [];

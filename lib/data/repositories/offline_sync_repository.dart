@@ -146,6 +146,11 @@ class OfflineSyncRepository {
   List<FotoFilaUploadModel> listarFotosPendentes() =>
       _hiveStorage.listarFotosNaFila();
 
+  /// Limpa todas as pendências das caixas do Hive para permitir reiniciar testes do zero
+  Future<void> limparFilaSincronizacao() async {
+    await _hiveStorage.limparFilasDeSincronizacao();
+  }
+
   /// Drena a fila offline em 2 etapas:
   /// 1) Envia todos os JSONs leves (Etapa 1) garantindo visibilidade imediata no servidor.
   /// 2) Envia cada foto comprimida individualmente (Etapa 2).
@@ -218,7 +223,7 @@ class OfflineSyncRepository {
     if (sessao == null || sessao.accessToken == 'offline-demo-token') {
       // Se o motorista entrou em modo offline demo antes de ter rede, autentica automaticamente ao sincronizar
       final novaSessao = await autenticar(
-        'motorista@checklist.com.br',
+        'motorista',
         'senha123',
       );
       return novaSessao.accessToken;
@@ -231,7 +236,7 @@ class OfflineSyncRepository {
     if (sessaoAtual == null ||
         sessaoAtual.refreshToken == 'offline-demo-refresh') {
       final novaSessao = await autenticar(
-        'motorista@checklist.com.br',
+        'motorista',
         'senha123',
       );
       return novaSessao.accessToken;
@@ -243,7 +248,7 @@ class OfflineSyncRepository {
       return novaSessao.accessToken;
     } catch (_) {
       final novaSessao = await autenticar(
-        'motorista@checklist.com.br',
+        'motorista',
         'senha123',
       );
       return novaSessao.accessToken;
