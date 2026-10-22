@@ -1,5 +1,24 @@
 import 'dart:convert';
 
+String formatarTipoVeiculo(String tipo) {
+  switch (tipo.trim().toUpperCase()) {
+    case 'CARRO':
+      return 'Carro Leve / Passeio';
+    case 'UTILITARIO':
+      return 'Utilitário / VUC';
+    case 'TOCO':
+      return 'Caminhão Toco (4x2)';
+    case 'TRUCK':
+      return 'Caminhão Truck (6x2)';
+    case 'CAVALO':
+      return 'Cavalo Mecânico';
+    case 'CARRETA':
+      return 'Carreta / Implemento';
+    default:
+      return tipo;
+  }
+}
+
 class UsuarioModel {
   final String id;
   final String nome;
@@ -74,6 +93,8 @@ class VeiculoCatalogoModel {
     required this.tipo,
     required this.kmAtual,
   });
+
+  String get tipoFormatado => formatarTipoVeiculo(tipo);
 
   factory VeiculoCatalogoModel.fromJson(Map<String, dynamic> json) {
     return VeiculoCatalogoModel(
@@ -160,14 +181,18 @@ class ChecklistTemplateModel {
   final String id;
   final String titulo;
   final String? descricao;
+  final String tipoVeiculo;
   final List<PerguntaTemplateModel> perguntas;
 
   const ChecklistTemplateModel({
     required this.id,
     required this.titulo,
     this.descricao,
+    this.tipoVeiculo = 'CAVALO',
     required this.perguntas,
   });
+
+  String get tipoVeiculoFormatado => formatarTipoVeiculo(tipoVeiculo);
 
   factory ChecklistTemplateModel.fromJson(Map<String, dynamic> json) {
     final rawPerguntas = (json['perguntas'] as List<dynamic>? ?? <dynamic>[])
@@ -176,6 +201,7 @@ class ChecklistTemplateModel {
       id: json['id'] as String,
       titulo: json['titulo'] as String,
       descricao: json['descricao'] as String?,
+      tipoVeiculo: (json['tipoVeiculo'] as String? ?? 'CAVALO').toUpperCase(),
       perguntas: rawPerguntas.map(PerguntaTemplateModel.fromJson).toList(),
     );
   }
@@ -184,6 +210,7 @@ class ChecklistTemplateModel {
         'id': id,
         'titulo': titulo,
         'descricao': descricao,
+        'tipoVeiculo': tipoVeiculo,
         'perguntas': perguntas.map((p) => p.toJson()).toList(),
       };
 }

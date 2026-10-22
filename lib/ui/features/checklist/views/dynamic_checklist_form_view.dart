@@ -8,6 +8,7 @@ import '../../../../domain/models/checklist_models.dart';
 class DynamicChecklistFormView extends StatefulWidget {
   final ChecklistTemplateModel template;
   final List<VeiculoCatalogoModel> veiculos;
+  final String? veiculoInicialId;
   final CameraCompressionService cameraService;
   final Future<void> Function(
     ChecklistFilaItemModel checklist,
@@ -18,6 +19,7 @@ class DynamicChecklistFormView extends StatefulWidget {
     super.key,
     required this.template,
     required this.veiculos,
+    this.veiculoInicialId,
     required this.cameraService,
     required this.onSalvarOffline,
   });
@@ -41,13 +43,25 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
   bool _salvando = false;
   String? _erroValidacao;
 
+  List<VeiculoCatalogoModel> get _veiculosMesmoTipo {
+    final tipoTemplate = widget.template.tipoVeiculo.trim().toUpperCase();
+    final filtrados = widget.veiculos
+        .where((v) => v.tipo.trim().toUpperCase() == tipoTemplate)
+        .toList();
+    return filtrados.isNotEmpty ? filtrados : widget.veiculos;
+  }
+
   @override
   void initState() {
     super.initState();
-    final primeiroVeiculo = widget.veiculos.first;
-    _veiculoSelecionadoId = primeiroVeiculo.id;
+    final listaCompativel = _veiculosMesmoTipo;
+    final veiculoInicial = listaCompativel.firstWhere(
+      (v) => v.id == widget.veiculoInicialId,
+      orElse: () => listaCompativel.first,
+    );
+    _veiculoSelecionadoId = veiculoInicial.id;
     _kmController =
-        TextEditingController(text: primeiroVeiculo.kmAtual.toString());
+        TextEditingController(text: veiculoInicial.kmAtual.toString());
 
     for (final p in widget.template.perguntas) {
       _obsAvariaControllers[p.id] = TextEditingController();
@@ -280,6 +294,8 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
 
   @override
   Widget build(BuildContext context) {
+    final veiculosDisponiveis = _veiculosMesmoTipo;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF0F172A),
@@ -312,7 +328,7 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
             ),
           ],
 
-          // Seleção de Veículo e Hodômetro
+          // Identificação do Veículo e Hodômetro
           Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -322,22 +338,29 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Identificação do Caminhão',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  Text(
+                    'Veículo (${widget.template.tipoVeiculoFormatado})',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: _veiculoSelecionadoId,
+                    isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: 'Placa / Modelo',
                       border: OutlineInputBorder(),
                     ),
-                    items: widget.veiculos
+                    items: veiculosDisponiveis
                         .map(
                           (v) => DropdownMenuItem<String>(
                             value: v.id,
-                            child: Text('${v.placa} — ${v.modelo}'),
+                            child: Text(
+                              '${v.placa} — ${v.modelo} (${v.tipoFormatado})',
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         )
                         .toList(),

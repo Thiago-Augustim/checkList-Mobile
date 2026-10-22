@@ -61,6 +61,20 @@ class OfflineSyncRepository {
           tipo: 'CAVALO',
           kmAtual: 89300,
         ),
+        VeiculoCatalogoModel(
+          id: '550e8400-e29b-41d4-a716-446655440003',
+          placa: 'QWE4R56',
+          modelo: 'Mercedes-Benz Actros 2651',
+          tipo: 'TRUCK',
+          kmAtual: 210450,
+        ),
+        VeiculoCatalogoModel(
+          id: '550e8400-e29b-41d4-a716-446655440004',
+          placa: 'BRA2E19',
+          modelo: 'Fiat Strada Endurance 1.3',
+          tipo: 'CARRO',
+          kmAtual: 34500,
+        ),
       ],
       templates: [
         ChecklistTemplateModel(
@@ -68,6 +82,7 @@ class OfflineSyncRepository {
           titulo: 'Vistoria Pré-Viagem (Saída de Pátio)',
           descricao:
               'Inspeção obrigatória de segurança antes do início de qualquer viagem rodoviária.',
+          tipoVeiculo: 'CAVALO',
           perguntas: [
             PerguntaTemplateModel(
               id: '990e8400-e29b-41d4-a716-446655440001',
@@ -107,6 +122,84 @@ class OfflineSyncRepository {
               ordem: 4,
               obrigatoria: false,
               exigeFotoSeAvaria: false,
+            ),
+          ],
+        ),
+        ChecklistTemplateModel(
+          id: '770e8400-e29b-41d4-a716-446655440003',
+          titulo: 'Vistoria de Carro Leve / Passeio',
+          descricao:
+              'Inspeção de segurança diária para carros leves da frota.',
+          tipoVeiculo: 'CARRO',
+          perguntas: [
+            PerguntaTemplateModel(
+              id: '990e8400-e29b-41d4-a716-446655440009',
+              enunciado:
+                  'Pneus, estepe, macaco e chave de roda estão em perfeitas condições?',
+              tipoResposta: 'BOOLEANO',
+              ordem: 1,
+              obrigatoria: true,
+              exigeFotoSeAvaria: true,
+              valorGatilhoAvaria: 'FALSE',
+            ),
+            PerguntaTemplateModel(
+              id: '990e8400-e29b-41d4-a716-446655440010',
+              enunciado:
+                  'Nível de óleo do motor e líquido de arrefecimento estão adequados?',
+              tipoResposta: 'BOOLEANO',
+              ordem: 2,
+              obrigatoria: true,
+              exigeFotoSeAvaria: true,
+              valorGatilhoAvaria: 'FALSE',
+            ),
+            PerguntaTemplateModel(
+              id: '990e8400-e29b-41d4-a716-446655440011',
+              enunciado:
+                  'Avalie o estado de conservação da pintura, vidros e retrovisores (1 a 5)',
+              tipoResposta: 'ESCALA_1_5',
+              ordem: 3,
+              obrigatoria: true,
+              exigeFotoSeAvaria: true,
+              valorGatilhoAvaria: '2',
+            ),
+          ],
+        ),
+        ChecklistTemplateModel(
+          id: '770e8400-e29b-41d4-a716-446655440004',
+          titulo: 'Vistoria Caminhão Truck (6x2)',
+          descricao:
+              'Inspeção específica de saída para caminhões rígidos tipo Truck.',
+          tipoVeiculo: 'TRUCK',
+          perguntas: [
+            PerguntaTemplateModel(
+              id: '990e8400-e29b-41d4-a716-446655440012',
+              enunciado:
+                  'Suspensor do 3º eixo (Truck) e balanças estão funcionando sem folgas?',
+              tipoResposta: 'BOOLEANO',
+              ordem: 1,
+              obrigatoria: true,
+              exigeFotoSeAvaria: true,
+              valorGatilhoAvaria: 'FALSE',
+            ),
+            PerguntaTemplateModel(
+              id: '990e8400-e29b-41d4-a716-446655440013',
+              enunciado:
+                  'Carroceria/baú e travas de segurança da carga estão íntegros?',
+              tipoResposta: 'BOOLEANO',
+              ordem: 2,
+              obrigatoria: true,
+              exigeFotoSeAvaria: true,
+              valorGatilhoAvaria: 'FALSE',
+            ),
+            PerguntaTemplateModel(
+              id: '990e8400-e29b-41d4-a716-446655440014',
+              enunciado:
+                  'Avalie o estado geral dos pneus do eixo duplo traseiro (1 a 5)',
+              tipoResposta: 'ESCALA_1_5',
+              ordem: 3,
+              obrigatoria: true,
+              exigeFotoSeAvaria: true,
+              valorGatilhoAvaria: '2',
             ),
           ],
         ),

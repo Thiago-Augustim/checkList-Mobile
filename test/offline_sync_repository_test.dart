@@ -5,6 +5,7 @@ import 'package:checklist_mobile/data/services/api_client.dart';
 import 'package:checklist_mobile/data/services/camera_compression_service.dart';
 import 'package:checklist_mobile/data/services/hive_storage_service.dart';
 import 'package:checklist_mobile/domain/models/checklist_models.dart';
+import 'package:checklist_mobile/ui/features/checklist/view_models/driver_home_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -220,6 +221,36 @@ void main() {
 
       expect(repository.listarChecklistsPendentes(), isEmpty);
       expect(repository.listarFotosPendentes(), isEmpty);
+    },
+  );
+
+  test(
+    'DriverHomeViewModel deve filtrar os checklists apenas para o tipo do veículo selecionado (CARRO vs TRUCK vs CAVALO)',
+    () {
+      final repository = OfflineSyncRepository(
+        apiClient: ApiClient(),
+        hiveStorage: hiveStorage,
+      );
+      final vm = DriverHomeViewModel(repository: repository);
+
+      // Inicialmente seleciona o 1º veículo do catálogo (Scania R450 -> CAVALO)
+      expect(vm.veiculoSelecionado?.tipo, 'CAVALO');
+      expect(
+        vm.templatesParaVeiculoSelecionado.every((t) => t.tipoVeiculo == 'CAVALO'),
+        isTrue,
+      );
+
+      // Seleciona o veículo CARRO (Fiat Strada -> 550e8400-e29b-41d4-a716-446655440004)
+      vm.selecionarVeiculo('550e8400-e29b-41d4-a716-446655440004');
+      expect(vm.veiculoSelecionado?.tipo, 'CARRO');
+      expect(vm.templatesParaVeiculoSelecionado, hasLength(1));
+      expect(vm.templatesParaVeiculoSelecionado.first.tipoVeiculo, 'CARRO');
+
+      // Seleciona o veículo TRUCK (Actros -> 550e8400-e29b-41d4-a716-446655440003)
+      vm.selecionarVeiculo('550e8400-e29b-41d4-a716-446655440003');
+      expect(vm.veiculoSelecionado?.tipo, 'TRUCK');
+      expect(vm.templatesParaVeiculoSelecionado, hasLength(1));
+      expect(vm.templatesParaVeiculoSelecionado.first.tipoVeiculo, 'TRUCK');
     },
   );
 }

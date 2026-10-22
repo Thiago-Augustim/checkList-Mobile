@@ -8,11 +8,53 @@ class DriverHomeViewModel extends ChangeNotifier {
   DriverHomeViewModel({required OfflineSyncRepository repository})
       : _repository = repository {
     _catalogo = _repository.obterCatalogoLocalOuPadrao();
+    _garantirVeiculoSelecionadoValido();
     _atualizarEstadoDaFila();
   }
 
   late CatalogoOfflineModel _catalogo;
   CatalogoOfflineModel get catalogo => _catalogo;
+
+  String? _veiculoSelecionadoId;
+  String? get veiculoSelecionadoId => _veiculoSelecionadoId;
+
+  VeiculoCatalogoModel? get veiculoSelecionado {
+    if (_catalogo.veiculos.isEmpty) return null;
+    for (final v in _catalogo.veiculos) {
+      if (v.id == _veiculoSelecionadoId) {
+        return v;
+      }
+    }
+    return _catalogo.veiculos.first;
+  }
+
+  /// Filtra os modelos de checklist ativos exibindo apenas aqueles vinculados ao tipo do veículo selecionado.
+  List<ChecklistTemplateModel> get templatesParaVeiculoSelecionado {
+    final veiculo = veiculoSelecionado;
+    if (veiculo == null) return const [];
+    final tipoAlvo = veiculo.tipo.trim().toUpperCase();
+    return _catalogo.templates
+        .where((t) => t.tipoVeiculo.trim().toUpperCase() == tipoAlvo)
+        .toList();
+  }
+
+  void selecionarVeiculo(String veiculoId) {
+    if (_veiculoSelecionadoId == veiculoId) return;
+    _veiculoSelecionadoId = veiculoId;
+    notifyListeners();
+  }
+
+  void _garantirVeiculoSelecionadoValido() {
+    if (_catalogo.veiculos.isEmpty) {
+      _veiculoSelecionadoId = null;
+      return;
+    }
+    final existe =
+        _catalogo.veiculos.any((v) => v.id == _veiculoSelecionadoId);
+    if (!existe) {
+      _veiculoSelecionadoId = _catalogo.veiculos.first.id;
+    }
+  }
 
   List<ChecklistFilaItemModel> _checklistsNaFila = const [];
   List<ChecklistFilaItemModel> get checklistsNaFila => _checklistsNaFila;
@@ -60,6 +102,7 @@ class DriverHomeViewModel extends ChangeNotifier {
 
     try {
       _catalogo = await _repository.sincronizarCatalogoDoServidor();
+      _garantirVeiculoSelecionadoValido();
       _mensagemStatus =
           'Catálogo atualizado com sucesso (${_catalogo.veiculos.length} veículos e ${_catalogo.templates.length} formulários).';
     } catch (e) {

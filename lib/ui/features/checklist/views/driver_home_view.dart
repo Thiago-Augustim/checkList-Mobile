@@ -33,11 +33,11 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   Future<void> _abrirFormularioDinamico(
     ChecklistTemplateModel template,
   ) async {
-    final veiculos = widget.homeViewModel.catalogo.veiculos;
-    if (veiculos.isEmpty) {
+    final veiculoSelecionado = widget.homeViewModel.veiculoSelecionado;
+    if (veiculoSelecionado == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Nenhum veículo disponível no catálogo offline.'),
+          content: Text('Selecione um veículo antes de iniciar a vistoria.'),
         ),
       );
       return;
@@ -47,7 +47,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       MaterialPageRoute<void>(
         builder: (ctx) => DynamicChecklistFormView(
           template: template,
-          veiculos: veiculos,
+          veiculos: widget.homeViewModel.catalogo.veiculos,
+          veiculoInicialId: veiculoSelecionado.id,
           cameraService: widget.cameraService,
           onSalvarOffline: (checklist, fotos) async {
             await widget.homeViewModel.registrarNovaVistoriaOffline(
@@ -97,6 +98,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       builder: (context, _) {
         final vm = widget.homeViewModel;
         final usuario = widget.authViewModel.sessao?.usuario;
+        final veiculoAtual = vm.veiculoSelecionado;
+        final templatesFiltrados = vm.templatesParaVeiculoSelecionado;
 
         return Scaffold(
           backgroundColor: const Color(0xFFF8FAFC),
@@ -286,49 +289,164 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               ),
               const SizedBox(height: 20),
 
+              // 1. Seleção do Veículo pelo Motorista
               const Text(
-                'Iniciar Nova Vistoria (Formulários Dinâmicos)',
+                '1. Selecione o Veículo da Vistoria',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
+              Card(
+                elevation: 1,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: vm.catalogo.veiculos.isEmpty
+                      ? const Text(
+                          'Nenhum veículo sincronizado no catálogo offline.',
+                          style: TextStyle(fontSize: 13),
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            DropdownButtonFormField<String>(
+                              key: ValueKey(veiculoAtual?.id),
+                              initialValue: veiculoAtual?.id,
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Placa / Modelo do Veículo',
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.directions_car_outlined),
+                              ),
+                              items: vm.catalogo.veiculos
+                                  .map(
+                                    (v) => DropdownMenuItem<String>(
+                                      value: v.id,
+                                      child: Text(
+                                        '${v.placa} — ${v.modelo} (${v.tipoFormatado})',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(fontSize: 13),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (novoId) {
+                                if (novoId != null) {
+                                  vm.selecionarVeiculo(novoId);
+                                }
+                              },
+                            ),
+                            if (veiculoAtual != null) ...[
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Colors.blue.shade200,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Tipo: ${veiculoAtual.tipoFormatado}',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue.shade800,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'KM Atual: ${veiculoAtual.kmAtual}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                ),
+              ),
+              const SizedBox(height: 20),
 
-              ...vm.catalogo.templates.map(
-                (template) => Card(
-                  key: ValueKey(template.id),
-                  margin: const EdgeInsets.only(bottom: 12),
+              // 2. Modelos de Checklist Filtrados pelo Tipo do Veículo Selecionado
+              Text(
+                veiculoAtual != null
+                    ? '2. Checklists para ${veiculoAtual.tipoFormatado}'
+                    : '2. Modelos de Checklist Disponíveis',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              if (templatesFiltrados.isEmpty)
+                Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.blue.shade50,
-                      child: Icon(
-                        Icons.assignment_turned_in,
-                        color: Colors.blue.shade700,
-                      ),
-                    ),
-                    title: Text(
-                      template.titulo,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      veiculoAtual != null
+                          ? 'Nenhum modelo de checklist cadastrado para o tipo "${veiculoAtual.tipoFormatado}".'
+                          : 'Selecione um veículo para ver os checklists compatíveis.',
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 13,
+                        color: Colors.black54,
                       ),
                     ),
-                    subtitle: Text(
-                      '${template.perguntas.length} perguntas dinâmicas • ${template.descricao ?? "Pronto para preenchimento offline"}',
-                      style: const TextStyle(fontSize: 12),
+                  ),
+                )
+              else
+                ...templatesFiltrados.map(
+                  (template) => Card(
+                    key: ValueKey(template.id),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    trailing: FilledButton(
-                      onPressed: () => _abrirFormularioDinamico(template),
-                      child: const Text('Iniciar'),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blue.shade50,
+                        child: Icon(
+                          Icons.assignment_turned_in,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
+                      title: Text(
+                        template.titulo,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${template.perguntas.length} perguntas • ${template.tipoVeiculoFormatado}\n${template.descricao ?? "Pronto para preenchimento offline"}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      trailing: FilledButton(
+                        onPressed: () => _abrirFormularioDinamico(template),
+                        child: const Text('Iniciar'),
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         );
