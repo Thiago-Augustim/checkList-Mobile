@@ -57,7 +57,23 @@ class DriverHomeViewModel extends ChangeNotifier {
   }
 
   List<ChecklistFilaItemModel> _checklistsNaFila = const [];
+  OfflineSyncRepository get repository => _repository;
+
   List<ChecklistFilaItemModel> get checklistsNaFila => _checklistsNaFila;
+
+  List<ChecklistFilaItemModel> get checklistsEnviados =>
+      _repository.listarChecklistsEnviados();
+
+  /// Retorna apenas os checklists enviados do veículo selecionado na tela inicial
+  List<ChecklistFilaItemModel> get checklistsEnviadosDoVeiculoSelecionado {
+    final veiculo = veiculoSelecionado;
+    if (veiculo == null) return checklistsEnviados;
+    return checklistsEnviados.where((c) {
+      return c.veiculoId == veiculo.id ||
+          c.veiculoPlaca.trim().toUpperCase() ==
+              veiculo.placa.trim().toUpperCase();
+    }).toList();
+  }
 
   List<FotoFilaUploadModel> _fotosNaFila = const [];
   List<FotoFilaUploadModel> get fotosNaFila => _fotosNaFila;

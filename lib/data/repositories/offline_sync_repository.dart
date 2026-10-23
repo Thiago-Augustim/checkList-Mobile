@@ -238,6 +238,12 @@ class OfflineSyncRepository {
   List<ChecklistFilaItemModel> listarChecklistsPendentes() =>
       _hiveStorage.listarChecklistsNaFila();
 
+  List<ChecklistFilaItemModel> listarChecklistsEnviados() =>
+      _hiveStorage.listarChecklistsEnviados();
+
+  Future<void> salvarChecklistEnviado(ChecklistFilaItemModel item) =>
+      _hiveStorage.salvarChecklistEnviado(item);
+
   List<FotoFilaUploadModel> listarFotosPendentes() =>
       _hiveStorage.listarFotosNaFila();
 
@@ -262,11 +268,13 @@ class OfflineSyncRepository {
       for (final item in checklistsNaFila) {
         try {
           await _apiClient.enviarChecklistEtapa1(token, item);
+          await _hiveStorage.salvarChecklistEnviado(item);
           await _hiveStorage.removerChecklistDaFila(item.id);
           checklistsEnviados++;
         } on ApiUnauthorizedException {
           token = await _renovarSessaoAutomaticamente();
           await _apiClient.enviarChecklistEtapa1(token, item);
+          await _hiveStorage.salvarChecklistEnviado(item);
           await _hiveStorage.removerChecklistDaFila(item.id);
           checklistsEnviados++;
         } catch (e) {

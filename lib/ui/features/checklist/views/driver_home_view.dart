@@ -63,35 +63,6 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     );
   }
 
-  Future<void> _confirmarLimparFila(BuildContext context) async {
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Limpar Fila Local?'),
-        content: const Text(
-          'Deseja descartar todos os checklists e fotos pendentes na fila local do Hive? '
-          'Essa ação remove itens inválidos e permite reiniciar os testes do zero.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Limpar Tudo'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmar == true && mounted) {
-      await widget.homeViewModel.limparFilaLocal();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +206,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               ),
               const SizedBox(height: 12),
 
-              // Card da Fila de Sincronização (Hive Boxes)
+              // Fila de Sincronização Compacta (apenas quantidade pendente e botão sincronizar)
               Card(
                 elevation: 0,
                 color: colors.surface,
@@ -244,128 +215,86 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                   side: BorderSide(color: colors.border),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  child: Row(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Fila de Sincronização Local (Hive)',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                                color: colors.textPrimary,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                      Icon(
+                        Icons.cloud_sync_outlined,
+                        size: 20,
+                        color: vm.totalPendenciasNaFila > 0
+                            ? (isDark
+                                ? const Color(0xFFFCD34D)
+                                : const Color(0xFFD97706))
+                            : colors.primary,
+                      ),
+                      const SizedBox(width: 10),
+                      Text.rich(
+                        TextSpan(
+                          text: 'Pendentes: ',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: colors.textSecondary,
                           ),
-                          const SizedBox(width: 8),
-                          Chip(
-                            label: Text(
-                              '${vm.totalPendenciasNaFila} pendentes',
+                          children: [
+                            TextSpan(
+                              text: '${vm.totalPendenciasNaFila}',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 13,
                                 fontWeight: FontWeight.bold,
                                 color: vm.totalPendenciasNaFila > 0
                                     ? (isDark
                                         ? const Color(0xFFFCD34D)
                                         : Colors.amber.shade900)
-                                    : colors.textSecondary,
+                                    : colors.primary,
                               ),
-                            ),
-                            backgroundColor: vm.totalPendenciasNaFila > 0
-                                ? (isDark
-                                    ? const Color(0xFF38290A)
-                                    : Colors.amber.shade100)
-                                : (isDark
-                                    ? colors.border
-                                    : Colors.grey.shade200),
-                            side: BorderSide(
-                              color: vm.totalPendenciasNaFila > 0
-                                  ? (isDark
-                                      ? const Color(0xFF785412)
-                                      : Colors.amber.shade300)
-                                  : colors.border,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '• Etapa 1 (JSONs leves de Checklist): ${vm.checklistsNaFila.length} na fila\n'
-                        '• Etapa 2 (Uploads Multipart de Fotos): ${vm.fotosNaFila.length} na fila',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colors.textSecondary,
-                          height: 1.5,
-                        ),
-                      ),
-                      if (vm.mensagemStatus != null) ...[
-                        const SizedBox(height: 10),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: colors.gridHoverBg,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: colors.border),
-                          ),
-                          child: Text(
-                            vm.mensagemStatus!,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colors.textPrimary,
-                            ),
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: FilledButton.icon(
-                              onPressed: vm.sincronizando ||
-                                      vm.totalPendenciasNaFila == 0
-                                  ? null
-                                  : vm.sincronizarFilaAgora,
-                              icon: vm.sincronizando
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Icon(Icons.sync),
-                              label: Text(
-                                vm.sincronizando
-                                    ? 'Sincronizando Fila...'
-                                    : 'Sincronizar Fila Agora',
-                              ),
-                            ),
-                          ),
-                          if (vm.totalPendenciasNaFila > 0) ...[
-                            const SizedBox(width: 8),
-                            IconButton.filledTonal(
-                              tooltip: 'Limpar Fila do Hive',
-                              style: IconButton.styleFrom(
-                                foregroundColor: isDark
-                                    ? Colors.red.shade300
-                                    : Colors.red.shade700,
-                                backgroundColor: isDark
-                                    ? const Color(0xFF351216)
-                                    : Colors.red.shade50,
-                              ),
-                              onPressed: vm.sincronizando
-                                  ? null
-                                  : () => _confirmarLimparFila(context),
-                              icon: const Icon(Icons.delete_sweep_outlined),
                             ),
                           ],
-                        ],
+                        ),
+                      ),
+                      const Spacer(),
+                      FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
+                          visualDensity: VisualDensity.compact,
+                          textStyle: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        onPressed: vm.sincronizando ||
+                                vm.totalPendenciasNaFila == 0
+                            ? null
+                            : () async {
+                                await vm.sincronizarFilaAgora();
+                                if (context.mounted &&
+                                    vm.mensagemStatus != null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(vm.mensagemStatus!),
+                                      duration: const Duration(seconds: 3),
+                                    ),
+                                  );
+                                }
+                              },
+                        icon: vm.sincronizando
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.sync, size: 16),
+                        label: Text(
+                          vm.sincronizando ? 'Sincronizando...' : 'Sincronizar',
+                        ),
                       ),
                     ],
                   ),
@@ -522,7 +451,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
-                        vertical: 10,
+                        vertical: 4,
                       ),
                       leading: CircleAvatar(
                         backgroundColor: colors.primaryBg,
@@ -537,13 +466,6 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           color: colors.textPrimary,
-                        ),
-                      ),
-                      subtitle: Text(
-                        '${template.perguntas.length} perguntas • ${template.tipoVeiculoFormatado}\n${template.descricao ?? "Pronto para preenchimento offline"}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colors.textSecondary,
                         ),
                       ),
                       trailing: FilledButton(

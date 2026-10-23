@@ -76,7 +76,11 @@ void main() {
       // Clica na aba Checklists (Aba 1)
       await tester.tap(find.text('Checklists'));
       await tester.pumpAndSettle();
-      expect(find.text('Central de Checklists'), findsOneWidget);
+      expect(find.text('Histórico de Checklists'), findsOneWidget);
+      expect(find.text('5 por página'), findsOneWidget);
+      expect(find.text('Imutável'), findsWidgets);
+      expect(find.text('Anterior'), findsOneWidget);
+      expect(find.text('Próxima'), findsOneWidget);
 
       // Clica na aba Perfil (Aba 2)
       await tester.tap(find.text('Perfil'));
@@ -89,4 +93,74 @@ void main() {
       expect(find.text('CheckList Motorista'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'Aba Checklists deve paginar o histórico em 5 itens por página e exibir detalhes imutáveis com data e hora',
+    (tester) async {
+      await tester.pumpWidget(
+        ThemeControllerScope(
+          controller: themeController,
+          child: MaterialApp(
+            theme: AppTheme.lightTheme,
+            home: MainNavigationView(
+              authViewModel: authViewModel,
+              homeViewModel: homeViewModel,
+              cameraService: cameraService,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Navega para aba Checklists
+      await tester.tap(find.text('Checklists'));
+      await tester.pumpAndSettle();
+
+      // Verifica exibição da página 1 do caminhão selecionado (ABC1D23 com 6 itens)
+      expect(find.text('Exibindo 1–5 de 6 vistorias'), findsOneWidget);
+      expect(find.text('5 por página'), findsOneWidget);
+      expect(find.textContaining('ABC1D23'), findsWidgets);
+
+      // Clica em 'Próxima' para navegar para a página 2
+      await tester.tap(find.text('Próxima'));
+      await tester.pumpAndSettle();
+
+      // Verifica exibição da página 2 (6–6 de 6)
+      expect(find.text('Exibindo 6–6 de 6 vistorias'), findsOneWidget);
+
+      // Volta para a página 1
+      await tester.tap(find.text('Anterior'));
+      await tester.pumpAndSettle();
+      expect(find.text('Exibindo 1–5 de 6 vistorias'), findsOneWidget);
+
+      // Abre o modal de detalhes somente leitura do primeiro item
+      final botaoVisualizar =
+          find.text('Visualizar Vistoria (Somente Leitura)').first;
+      await tester.tap(botaoVisualizar);
+      await tester.pumpAndSettle();
+
+      // Verifica aviso explícito de imutabilidade e data/hora no modal
+      expect(
+        find.text(
+          'Registro finalizado e sincronizado. Os dados, data e respostas não podem ser alterados.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Data e Horário Realizado:'), findsOneWidget);
+      expect(find.byType(TextField), findsNothing);
+      expect(find.byType(Switch), findsNothing);
+
+      // Fecha modal
+      await tester.tap(find.text('Fechar Visualização'));
+      await tester.pumpAndSettle();
+      expect(find.text('Histórico de Checklists'), findsOneWidget);
+
+      // Alterna o veículo na Home e verifica que a aba Checklists reflete apenas o novo veículo
+      homeViewModel.selecionarVeiculo('550e8400-e29b-41d4-a716-446655440002'); // XYZ9F87
+      await tester.pumpAndSettle();
+      expect(find.textContaining('XYZ9F87'), findsWidgets);
+      expect(find.text('Exibindo 1–2 de 2 vistorias'), findsOneWidget);
+    },
+  );
 }
+
