@@ -198,7 +198,7 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
             ),
           ],
         ),
-        backgroundColor: const Color(0xFFDC2626),
+        backgroundColor: const Color(0xFFD97706),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
       ),
@@ -593,9 +593,9 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: emAvaria
-                  ? (isDark ? const Color(0xFFEF4444) : const Color(0xFFDC2626))
+                  ? (isDark ? const Color(0xFFF59E0B) : const Color(0xFFEA580C))
                   : colors.border,
-              width: emAvaria ? 1.8 : 1.0,
+              width: emAvaria ? 1.5 : 1.0,
             ),
             boxShadow: [
               BoxShadow(
@@ -634,13 +634,15 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                     decoration: BoxDecoration(
                       color: pergunta.obrigatoria
                           ? (isDark
-                              ? const Color(0xFF381518)
-                              : Colors.red.shade50)
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFF1F5F9))
                           : colors.sidebarBg,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: pergunta.obrigatoria
-                            ? Colors.red.shade300
+                            ? (isDark
+                                ? const Color(0xFF334155)
+                                : const Color(0xFFCBD5E1))
                             : colors.border,
                       ),
                     ),
@@ -650,8 +652,8 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         color: pergunta.obrigatoria
-                            ? Colors.red
-                            : colors.textSecondary,
+                            ? colors.textPrimary
+                            : colors.sidebarTextMuted,
                       ),
                     ),
                   ),
@@ -683,12 +685,12 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF2E1518) : Colors.red.shade50,
+              color: isDark ? const Color(0xFF261D13) : const Color(0xFFFFFBEB),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isDark
-                    ? const Color(0xFF7F1D1D)
-                    : Colors.red.shade200,
+                    ? const Color(0xFF78350F)
+                    : const Color(0xFFFDE68A),
                 width: 1.5,
               ),
             ),
@@ -697,18 +699,25 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.warning_amber_rounded,
-                        color: Color(0xFFDC2626), size: 22),
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: isDark
+                          ? const Color(0xFFFBBF24)
+                          : const Color(0xFFD97706),
+                      size: 22,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         pergunta.exigeFotoSeAvaria
-                            ? 'Avaria Detectada • Foto Obrigatória'
-                            : 'Avaria Detectada',
-                        style: const TextStyle(
+                            ? 'Avaria Apontada • Foto Obrigatória'
+                            : 'Avaria Apontada',
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFDC2626),
+                          color: isDark
+                              ? const Color(0xFFFBBF24)
+                              : const Color(0xFFB45309),
                         ),
                       ),
                     ),
@@ -717,13 +726,13 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                 const SizedBox(height: 6),
                 Text(
                   pergunta.exigeFotoSeAvaria
-                      ? 'Você deve fotografar a avaria antes de avançar para a próxima pergunta.'
+                      ? 'Tire uma foto do detalhe da avaria antes de avançar para a próxima pergunta.'
                       : 'Tire uma foto se desejar registrar a avaria.',
                   style: TextStyle(
                     fontSize: 12,
                     color: isDark
-                        ? const Color(0xFFFCA5A5)
-                        : Colors.red.shade900,
+                        ? const Color(0xFFFDE68A)
+                        : const Color(0xFF92400E),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -731,7 +740,9 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                 // Botão de Captura de Foto
                 FilledButton.icon(
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFDC2626),
+                    backgroundColor: isDark
+                        ? const Color(0xFFB45309)
+                        : const Color(0xFFD97706),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
@@ -775,7 +786,7 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                               child: Container(
                                 padding: const EdgeInsets.all(2),
                                 decoration: const BoxDecoration(
-                                  color: Colors.red,
+                                  color: Color(0xFF334155),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -879,24 +890,26 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 color: naoSelecionado
-                    ? (isDark ? const Color(0xFF381518) : Colors.red.shade50)
+                    ? (isDark ? const Color(0xFF261D13) : const Color(0xFFFFFBEB))
                     : colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: naoSelecionado
-                      ? const Color(0xFFDC2626)
+                      ? (isDark ? const Color(0xFFF59E0B) : const Color(0xFFD97706))
                       : colors.border,
-                  width: naoSelecionado ? 2 : 1,
+                  width: naoSelecionado ? 1.8 : 1,
                 ),
               ),
               child: Row(
                 children: [
                   Icon(
                     naoSelecionado
-                        ? Icons.cancel
+                        ? Icons.warning_amber_rounded
                         : Icons.radio_button_unchecked,
                     color: naoSelecionado
-                        ? const Color(0xFFDC2626)
+                        ? (isDark
+                            ? const Color(0xFFFBBF24)
+                            : const Color(0xFFD97706))
                         : colors.sidebarTextMuted,
                   ),
                   const SizedBox(width: 12),
@@ -909,7 +922,9 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                             ? FontWeight.bold
                             : FontWeight.w500,
                         color: naoSelecionado
-                            ? const Color(0xFFDC2626)
+                            ? (isDark
+                                ? const Color(0xFFFDE68A)
+                                : const Color(0xFFB45309))
                             : colors.textPrimary,
                       ),
                     ),
@@ -949,14 +964,18 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                       decoration: BoxDecoration(
                         color: selecionado
                             ? (isCritico
-                                ? const Color(0xFFDC2626)
+                                ? (isDark
+                                    ? const Color(0xFFB45309)
+                                    : const Color(0xFFD97706))
                                 : colors.primary)
                             : colors.surface,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: selecionado
                               ? (isCritico
-                                  ? const Color(0xFFDC2626)
+                                  ? (isDark
+                                      ? const Color(0xFFF59E0B)
+                                      : const Color(0xFFD97706))
                                   : colors.primary)
                               : colors.border,
                           width: selecionado ? 2 : 1,
@@ -983,8 +1002,13 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '1 = Crítico (Avaria)',
-                style: TextStyle(fontSize: 11, color: Colors.red.shade700),
+                '1 = Requer Atenção (Avaria)',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isDark
+                      ? const Color(0xFFFBBF24)
+                      : const Color(0xFFD97706),
+                ),
               ),
               Text(
                 '5 = Excelente',
@@ -1106,7 +1130,7 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                       label: 'Avarias',
                       valor: '$avarias',
                       cor: avarias > 0
-                          ? const Color(0xFFDC2626)
+                          ? const Color(0xFFD97706)
                           : colors.primary,
                     ),
                   ),
