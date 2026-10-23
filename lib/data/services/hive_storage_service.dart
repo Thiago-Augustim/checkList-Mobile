@@ -7,11 +7,13 @@ class HiveStorageService {
   static const String catalogBoxName = 'catalog_box';
   static const String syncChecklistsBoxName = 'sync_checklists_box';
   static const String syncPhotosBoxName = 'sync_photos_box';
+  static const String settingsBoxName = 'settings_box';
 
   late final Box<String> _authBox;
   late final Box<String> _catalogBox;
   late final Box<String> _syncChecklistsBox;
   late final Box<String> _syncPhotosBox;
+  late final Box<String> _settingsBox;
 
   Future<void> init({String? customSubDir}) async {
     if (customSubDir != null) {
@@ -23,6 +25,7 @@ class HiveStorageService {
     _catalogBox = await Hive.openBox<String>(catalogBoxName);
     _syncChecklistsBox = await Hive.openBox<String>(syncChecklistsBoxName);
     _syncPhotosBox = await Hive.openBox<String>(syncPhotosBoxName);
+    _settingsBox = await Hive.openBox<String>(settingsBoxName);
   }
 
   // ===========================================================================
@@ -108,5 +111,16 @@ class HiveStorageService {
   Future<void> limparFilasDeSincronizacao() async {
     await _syncChecklistsBox.clear();
     await _syncPhotosBox.clear();
+  }
+
+  // ===========================================================================
+  // Preferências do Aplicativo (Tema Claro / Escuro / Sistema)
+  // ===========================================================================
+  Future<void> salvarTema(String tema) async {
+    await _settingsBox.put('tema', tema);
+  }
+
+  String? obterTema() {
+    return _settingsBox.get('tema');
   }
 }

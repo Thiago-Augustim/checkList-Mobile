@@ -26,6 +26,8 @@ class OfflineSyncRepository {
   })  : _apiClient = apiClient,
         _hiveStorage = hiveStorage;
 
+  HiveStorageService get hiveStorage => _hiveStorage;
+
   AuthSessionModel? obterSessaoLocal() => _hiveStorage.obterSessao();
 
   Future<AuthSessionModel> autenticar(String email, String senha) async {

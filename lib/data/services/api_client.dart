@@ -22,9 +22,10 @@ class ApiClient {
   /// No Emulador Android, o localhost da máquina hospedeira (Windows) é 10.0.2.2
   static String defaultBaseUrl() {
     if (!kIsWeb && Platform.isAndroid) {
-      return 'http://10.0.2.2:8080/api/v1';
+      return 'https://checklist-backend-w9vf.onrender.com/api/v1';
+      //http://10.0.2.2:8080/api/v1
     }
-    return 'http://localhost:8080/api/v1';
+    return 'https://checklist-backend-w9vf.onrender.com/api/v1';
   }
 
   Future<AuthSessionModel> login(String username, String senha) async {
@@ -43,7 +44,8 @@ class ApiClient {
       final jsonMap = jsonDecode(response.body) as Map<String, dynamic>;
       return AuthSessionModel.fromJson(jsonMap);
     }
-    throw Exception('Falha no login (${response.statusCode}): ${response.body}');
+    throw Exception(
+        'Falha no login (${response.statusCode}): ${response.body}');
   }
 
   Future<AuthSessionModel> renovarToken(String refreshToken) async {
@@ -66,15 +68,13 @@ class ApiClient {
   }
 
   Future<CatalogoOfflineModel> baixarCatalogos(String accessToken) async {
-    final response = await _httpClient
-        .get(
-          Uri.parse('$baseUrl/sync/catalogos'),
-          headers: {
-            HttpHeaders.authorizationHeader: 'Bearer $accessToken',
-            HttpHeaders.acceptHeader: 'application/json',
-          },
-        )
-        .timeout(const Duration(seconds: 10));
+    final response = await _httpClient.get(
+      Uri.parse('$baseUrl/sync/catalogos'),
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $accessToken',
+        HttpHeaders.acceptHeader: 'application/json',
+      },
+    ).timeout(const Duration(seconds: 10));
 
     if (response.statusCode == 401 || response.statusCode == 403) {
       throw const ApiUnauthorizedException('Token expirado.');

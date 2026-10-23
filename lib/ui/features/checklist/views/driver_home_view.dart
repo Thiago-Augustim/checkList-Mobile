@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../data/services/camera_compression_service.dart';
 import '../../../../domain/models/checklist_models.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/theme_controller.dart';
 import '../../auth/view_models/auth_view_model.dart';
 import '../view_models/driver_home_view_model.dart';
 import 'dynamic_checklist_form_view.dart';
@@ -93,6 +95,9 @@ class _DriverHomeViewState extends State<DriverHomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final isDark = context.isDarkMode;
+
     return ListenableBuilder(
       listenable: widget.homeViewModel,
       builder: (context, _) {
@@ -102,34 +107,83 @@ class _DriverHomeViewState extends State<DriverHomeView> {
         final templatesFiltrados = vm.templatesParaVeiculoSelecionado;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
+          backgroundColor: colors.sidebarBg,
           appBar: AppBar(
-            backgroundColor: const Color(0xFF0F172A),
-            foregroundColor: Colors.white,
+            backgroundColor: colors.surface,
+            elevation: 0,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'CheckList Motorista',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: colors.textPrimary,
+                  ),
                 ),
                 Text(
                   usuario?.nome ?? 'Motorista',
-                  style: const TextStyle(fontSize: 11, color: Colors.white70),
+                  style: TextStyle(fontSize: 11, color: colors.textSecondary),
                 ),
               ],
             ),
             actions: [
+              PopupMenuButton<ThemeMode>(
+                tooltip: 'Tema do Aplicativo',
+                icon: Icon(
+                  isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+                  color: colors.textPrimary,
+                ),
+                initialValue: context.themeController.themeMode,
+                onSelected: (mode) =>
+                    context.themeController.setThemeMode(mode),
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: ThemeMode.light,
+                    child: Row(
+                      children: [
+                        Icon(Icons.light_mode, size: 20),
+                        SizedBox(width: 8),
+                        Text('Tema Claro'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: ThemeMode.dark,
+                    child: Row(
+                      children: [
+                        Icon(Icons.dark_mode, size: 20),
+                        SizedBox(width: 8),
+                        Text('Tema Escuro'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: ThemeMode.system,
+                    child: Row(
+                      children: [
+                        Icon(Icons.brightness_auto, size: 20),
+                        SizedBox(width: 8),
+                        Text('Padrão do Sistema'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               IconButton(
                 tooltip: 'Baixar Catálogo do Servidor',
                 onPressed:
                     vm.sincronizando ? null : vm.baixarCatalogoAtualizado,
-                icon: const Icon(Icons.cloud_download_outlined),
+                icon: Icon(
+                  Icons.cloud_download_outlined,
+                  color: colors.textPrimary,
+                ),
               ),
               IconButton(
                 tooltip: 'Sair',
                 onPressed: widget.authViewModel.logout,
-                icon: const Icon(Icons.logout),
+                icon: Icon(Icons.logout, color: colors.textPrimary),
               ),
             ],
           ),
@@ -140,14 +194,16 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               Card(
                 elevation: 0,
                 color: vm.modoOfflineSimulado
-                    ? const Color(0xFFFEF3C7)
-                    : const Color(0xFFECFDF5),
+                    ? (isDark
+                        ? const Color(0xFF2E2008)
+                        : const Color(0xFFFEF3C7))
+                    : colors.primaryBg,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(
                     color: vm.modoOfflineSimulado
                         ? const Color(0xFFF59E0B)
-                        : const Color(0xFF10B981),
+                        : colors.primary,
                   ),
                 ),
                 child: SwitchListTile(
@@ -155,24 +211,25 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                     vm.modoOfflineSimulado
                         ? 'Modo Estrada: SEM INTERNET (Offline)'
                         : 'Modo Pátio: CONECTADO (Online)',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
+                      color: colors.textPrimary,
                     ),
                   ),
                   subtitle: Text(
                     vm.modoOfflineSimulado
                         ? 'As vistorias e fotos comprimidas serão retidas na fila local do Hive.'
                         : 'Sincronização automática em 2 etapas com o Spring Boot ativa.',
-                    style: const TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: 12, color: colors.textSecondary),
                   ),
                   value: vm.modoOfflineSimulado,
                   onChanged: vm.alternarModoOfflineSimulado,
                   secondary: Icon(
                     vm.modoOfflineSimulado ? Icons.wifi_off : Icons.wifi,
                     color: vm.modoOfflineSimulado
-                        ? Colors.amber.shade900
-                        : Colors.teal.shade700,
+                        ? Colors.amber.shade700
+                        : colors.primary,
                   ),
                 ),
               ),
@@ -180,9 +237,11 @@ class _DriverHomeViewState extends State<DriverHomeView> {
 
               // Card da Fila de Sincronização (Hive Boxes)
               Card(
-                elevation: 1,
+                elevation: 0,
+                color: colors.surface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: colors.border),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -192,12 +251,13 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Expanded(
+                          Expanded(
                             child: Text(
                               'Fila de Sincronização Local (Hive)',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
+                                color: colors.textPrimary,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -206,14 +266,30 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                           Chip(
                             label: Text(
                               '${vm.totalPendenciasNaFila} pendentes',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
+                                color: vm.totalPendenciasNaFila > 0
+                                    ? (isDark
+                                        ? const Color(0xFFFCD34D)
+                                        : Colors.amber.shade900)
+                                    : colors.textSecondary,
                               ),
                             ),
                             backgroundColor: vm.totalPendenciasNaFila > 0
-                                ? Colors.amber.shade100
-                                : Colors.grey.shade200,
+                                ? (isDark
+                                    ? const Color(0xFF38290A)
+                                    : Colors.amber.shade100)
+                                : (isDark
+                                    ? colors.border
+                                    : Colors.grey.shade200),
+                            side: BorderSide(
+                              color: vm.totalPendenciasNaFila > 0
+                                  ? (isDark
+                                      ? const Color(0xFF785412)
+                                      : Colors.amber.shade300)
+                                  : colors.border,
+                            ),
                           ),
                         ],
                       ),
@@ -221,9 +297,9 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                       Text(
                         '• Etapa 1 (JSONs leves de Checklist): ${vm.checklistsNaFila.length} na fila\n'
                         '• Etapa 2 (Uploads Multipart de Fotos): ${vm.fotosNaFila.length} na fila',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Colors.black87,
+                          color: colors.textSecondary,
                           height: 1.5,
                         ),
                       ),
@@ -232,12 +308,16 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.blueGrey.shade50,
+                            color: colors.gridHoverBg,
                             borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colors.border),
                           ),
                           child: Text(
                             vm.mensagemStatus!,
-                            style: const TextStyle(fontSize: 12),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colors.textPrimary,
+                            ),
                           ),
                         ),
                       ],
@@ -272,8 +352,12 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                             IconButton.filledTonal(
                               tooltip: 'Limpar Fila do Hive',
                               style: IconButton.styleFrom(
-                                foregroundColor: Colors.red.shade700,
-                                backgroundColor: Colors.red.shade50,
+                                foregroundColor: isDark
+                                    ? Colors.red.shade300
+                                    : Colors.red.shade700,
+                                backgroundColor: isDark
+                                    ? const Color(0xFF351216)
+                                    : Colors.red.shade50,
                               ),
                               onPressed: vm.sincronizando
                                   ? null
@@ -290,22 +374,31 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               const SizedBox(height: 20),
 
               // 1. Seleção do Veículo pelo Motorista
-              const Text(
+              Text(
                 '1. Selecione o Veículo da Vistoria',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: colors.textPrimary,
+                ),
               ),
               const SizedBox(height: 8),
               Card(
-                elevation: 1,
+                elevation: 0,
+                color: colors.surface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: colors.border),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: vm.catalogo.veiculos.isEmpty
-                      ? const Text(
+                      ? Text(
                           'Nenhum veículo sincronizado no catálogo offline.',
-                          style: TextStyle(fontSize: 13),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: colors.textSecondary,
+                          ),
                         )
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -316,7 +409,6 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                               isExpanded: true,
                               decoration: const InputDecoration(
                                 labelText: 'Placa / Modelo do Veículo',
-                                border: OutlineInputBorder(),
                                 prefixIcon: Icon(Icons.directions_car_outlined),
                               ),
                               items: vm.catalogo.veiculos
@@ -326,7 +418,10 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                                       child: Text(
                                         '${v.placa} — ${v.modelo} (${v.tipoFormatado})',
                                         overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 13),
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: colors.textPrimary,
+                                        ),
                                       ),
                                     ),
                                   )
@@ -347,10 +442,10 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.blue.shade50,
+                                      color: colors.primaryBg,
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
-                                        color: Colors.blue.shade200,
+                                        color: colors.primary.withValues(alpha: 0.4),
                                       ),
                                     ),
                                     child: Text(
@@ -358,16 +453,16 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.blue.shade800,
+                                        color: colors.primary,
                                       ),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
                                     'KM Atual: ${veiculoAtual.kmAtual}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.black54,
+                                      color: colors.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -384,17 +479,21 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                 veiculoAtual != null
                     ? '2. Checklists para ${veiculoAtual.tipoFormatado}'
                     : '2. Modelos de Checklist Disponíveis',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  color: colors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
 
               if (templatesFiltrados.isEmpty)
                 Card(
+                  elevation: 0,
+                  color: colors.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: colors.border),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -402,9 +501,9 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                       veiculoAtual != null
                           ? 'Nenhum modelo de checklist cadastrado para o tipo "${veiculoAtual.tipoFormatado}".'
                           : 'Selecione um veículo para ver os checklists compatíveis.',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: Colors.black54,
+                        color: colors.textSecondary,
                       ),
                     ),
                   ),
@@ -414,8 +513,11 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                   (template) => Card(
                     key: ValueKey(template.id),
                     margin: const EdgeInsets.only(bottom: 12),
+                    elevation: 0,
+                    color: colors.surface,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: colors.border),
                     ),
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
@@ -423,22 +525,26 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                         vertical: 10,
                       ),
                       leading: CircleAvatar(
-                        backgroundColor: Colors.blue.shade50,
+                        backgroundColor: colors.primaryBg,
                         child: Icon(
                           Icons.assignment_turned_in,
-                          color: Colors.blue.shade700,
+                          color: colors.primary,
                         ),
                       ),
                       title: Text(
                         template.titulo,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
+                          color: colors.textPrimary,
                         ),
                       ),
                       subtitle: Text(
                         '${template.perguntas.length} perguntas • ${template.tipoVeiculoFormatado}\n${template.descricao ?? "Pronto para preenchimento offline"}',
-                        style: const TextStyle(fontSize: 12),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colors.textSecondary,
+                        ),
                       ),
                       trailing: FilledButton(
                         onPressed: () => _abrirFormularioDinamico(template),

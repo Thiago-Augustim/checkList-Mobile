@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../data/services/camera_compression_service.dart';
 import '../../../../domain/models/checklist_models.dart';
+import '../../../theme/app_colors.dart';
 
 class DynamicChecklistFormView extends StatefulWidget {
   final ChecklistTemplateModel template;
@@ -224,6 +225,8 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
   }
 
   Widget _construirCampoDinamico(PerguntaTemplateModel pergunta) {
+    final colors = context.appColors;
+    final isDark = context.isDarkMode;
     final valorAtual = _valoresRespostas[pergunta.id] ?? '';
 
     if (pergunta.tipoResposta == 'BOOLEANO') {
@@ -233,7 +236,7 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
             child: ChoiceChip(
               label: const Text('SIM (Conforme)'),
               selected: valorAtual == 'TRUE',
-              selectedColor: Colors.green.shade100,
+              selectedColor: colors.primaryBg,
               onSelected: (_) {
                 setState(() {
                   _valoresRespostas[pergunta.id] = 'TRUE';
@@ -246,7 +249,9 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
             child: ChoiceChip(
               label: const Text('NÃO (Com Avaria)'),
               selected: valorAtual == 'FALSE',
-              selectedColor: Colors.red.shade100,
+              selectedColor: isDark
+                  ? const Color(0xFF381518)
+                  : Colors.red.shade100,
               onSelected: (_) {
                 setState(() {
                   _valoresRespostas[pergunta.id] = 'FALSE';
@@ -268,8 +273,8 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
             label: Text('Nota $nota'),
             selected: selecionado,
             selectedColor: index <= 1
-                ? Colors.red.shade100
-                : Colors.blue.shade100,
+                ? (isDark ? const Color(0xFF381518) : Colors.red.shade100)
+                : colors.primaryBg,
             onSelected: (_) {
               setState(() {
                 _valoresRespostas[pergunta.id] = nota;
@@ -286,7 +291,6 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
       },
       decoration: const InputDecoration(
         hintText: 'Digite sua resposta...',
-        border: OutlineInputBorder(),
         isDense: true,
       ),
     );
@@ -294,15 +298,22 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final isDark = context.isDarkMode;
     final veiculosDisponiveis = _veiculosMesmoTipo;
 
     return Scaffold(
+      backgroundColor: colors.sidebarBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
-        foregroundColor: Colors.white,
+        backgroundColor: colors.surface,
+        elevation: 0,
         title: Text(
           widget.template.titulo,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: colors.textPrimary,
+          ),
         ),
       ),
       body: ListView(
@@ -313,14 +324,22 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
               padding: const EdgeInsets.all(12),
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: isDark
+                    ? const Color(0xFF2E1518)
+                    : Colors.red.shade50,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.red.shade300),
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF5A1C22)
+                      : Colors.red.shade300,
+                ),
               ),
               child: Text(
                 _erroValidacao!,
                 style: TextStyle(
-                  color: Colors.red.shade900,
+                  color: isDark
+                      ? const Color(0xFFFCA5A5)
+                      : Colors.red.shade900,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
@@ -330,8 +349,11 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
 
           // Identificação do Veículo e Hodômetro
           Card(
+            elevation: 0,
+            color: colors.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: colors.border),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -340,9 +362,10 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                 children: [
                   Text(
                     'Veículo (${widget.template.tipoVeiculoFormatado})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
+                      color: colors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -351,7 +374,6 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                     isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: 'Placa / Modelo',
-                      border: OutlineInputBorder(),
                     ),
                     items: veiculosDisponiveis
                         .map(
@@ -360,6 +382,7 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                             child: Text(
                               '${v.placa} — ${v.modelo} (${v.tipoFormatado})',
                               overflow: TextOverflow.ellipsis,
+                              style: TextStyle(color: colors.textPrimary),
                             ),
                           ),
                         )
@@ -380,7 +403,6 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
                       labelText: 'Hodômetro no Momento da Vistoria (KM)',
-                      border: OutlineInputBorder(),
                     ),
                   ),
                 ],
@@ -398,12 +420,14 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
             return Card(
               key: ValueKey(pergunta.id),
               margin: const EdgeInsets.only(bottom: 12),
+              elevation: 0,
+              color: colors.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
                   color: emAvaria
-                      ? Colors.red.shade400
-                      : Colors.grey.shade300,
+                      ? (isDark ? Colors.red.shade400 : Colors.red.shade600)
+                      : colors.border,
                   width: emAvaria ? 1.5 : 1,
                 ),
               ),
@@ -414,9 +438,10 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                   children: [
                     Text(
                       '${pergunta.ordem}. ${pergunta.enunciado}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
+                        color: colors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -427,8 +452,15 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.shade50,
+                          color: isDark
+                              ? const Color(0xFF2E1518)
+                              : Colors.red.shade50,
                           borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF5A1C22)
+                                : Colors.red.shade200,
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -440,17 +472,18 @@ class _DynamicChecklistFormViewState extends State<DynamicChecklistFormView> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.red.shade900,
+                                color: isDark
+                                    ? const Color(0xFFFCA5A5)
+                                    : Colors.red.shade900,
                               ),
                             ),
                             const SizedBox(height: 8),
                             TextField(
                               controller: _obsAvariaControllers[pergunta.id],
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Descreva o problema / avaria',
                                 filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(),
+                                fillColor: colors.surface,
                                 isDense: true,
                               ),
                             ),

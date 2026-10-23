@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../theme/app_colors.dart';
+import '../../../theme/theme_controller.dart';
 import '../view_models/auth_view_model.dart';
 
 class LoginView extends StatefulWidget {
@@ -23,17 +25,37 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final isDark = context.isDarkMode;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: colors.sidebarBg,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: 'Alternar Tema Claro / Escuro',
+            icon: Icon(
+              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              color: colors.textSecondary,
+            ),
+            onPressed: () => context.themeController.toggleTheme(context),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
             child: Card(
-              elevation: 8,
+              color: colors.surface,
+              elevation: 4,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
+                side: BorderSide(color: colors.border),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -49,7 +71,7 @@ class _LoginViewState extends State<LoginView> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF2563EB),
+                                color: colors.primary,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -59,7 +81,7 @@ class _LoginViewState extends State<LoginView> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            const Expanded(
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -68,13 +90,14 @@ class _LoginViewState extends State<LoginView> {
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
+                                      color: colors.textPrimary,
                                     ),
                                   ),
                                   Text(
                                     'App de Vistoria Offline-First (Hive)',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.black54,
+                                      color: colors.sidebarTextMuted,
                                     ),
                                   ),
                                 ],
@@ -87,14 +110,22 @@ class _LoginViewState extends State<LoginView> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.red.shade50,
+                              color: isDark
+                                  ? const Color(0xFF2E1518)
+                                  : Colors.red.shade50,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red.shade200),
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF5A1C22)
+                                    : Colors.red.shade200,
+                              ),
                             ),
                             child: Text(
                               widget.viewModel.erro!,
                               style: TextStyle(
-                                color: Colors.red.shade800,
+                                color: isDark
+                                    ? const Color(0xFFFCA5A5)
+                                    : Colors.red.shade800,
                                 fontSize: 12,
                               ),
                             ),
