@@ -6,7 +6,7 @@ import 'data/services/hive_storage_service.dart';
 import 'ui/features/auth/view_models/auth_view_model.dart';
 import 'ui/features/auth/views/login_view.dart';
 import 'ui/features/checklist/view_models/driver_home_view_model.dart';
-import 'ui/features/checklist/views/driver_home_view.dart';
+import 'ui/features/navigation/views/main_navigation_view.dart';
 import 'ui/theme/app_theme.dart';
 import 'ui/theme/theme_controller.dart';
 
@@ -93,7 +93,7 @@ class _CheckListMobileAppState extends State<CheckListMobileApp> {
                 if (!_authViewModel.estaAutenticado) {
                   return LoginView(viewModel: _authViewModel);
                 }
-                return DriverHomeView(
+                return MainNavigationView(
                   authViewModel: _authViewModel,
                   homeViewModel: _homeViewModel,
                   cameraService: widget.cameraService,
