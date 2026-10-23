@@ -53,14 +53,14 @@ class OfflineSyncRepository {
           id: '550e8400-e29b-41d4-a716-446655440001',
           placa: 'ABC1D23',
           modelo: 'Scania R450 6x2',
-          tipo: 'CAVALO',
+          tipo: 'CAVALO_MECANICO',
           kmAtual: 145200,
         ),
         VeiculoCatalogoModel(
           id: '550e8400-e29b-41d4-a716-446655440002',
           placa: 'XYZ9F87',
           modelo: 'Volvo FH 540 6x4',
-          tipo: 'CAVALO',
+          tipo: 'CAVALO_MECANICO',
           kmAtual: 89300,
         ),
         VeiculoCatalogoModel(
@@ -84,7 +84,7 @@ class OfflineSyncRepository {
           titulo: 'Vistoria Pré-Viagem (Saída de Pátio)',
           descricao:
               'Inspeção obrigatória de segurança antes do início de qualquer viagem rodoviária.',
-          tipoVeiculo: 'CAVALO',
+          tipoVeiculo: 'CAVALO_MECANICO',
           perguntas: [
             PerguntaTemplateModel(
               id: '990e8400-e29b-41d4-a716-446655440001',

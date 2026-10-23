@@ -233,10 +233,11 @@ void main() {
       );
       final vm = DriverHomeViewModel(repository: repository);
 
-      // Inicialmente seleciona o 1º veículo do catálogo (Scania R450 -> CAVALO)
-      expect(vm.veiculoSelecionado?.tipo, 'CAVALO');
+      // Inicialmente seleciona o 1º veículo do catálogo (Scania R450 -> CAVALO_MECANICO)
+      expect(vm.veiculoSelecionado?.tipo, 'CAVALO_MECANICO');
       expect(
-        vm.templatesParaVeiculoSelecionado.every((t) => t.tipoVeiculo == 'CAVALO'),
+        vm.templatesParaVeiculoSelecionado
+            .every((t) => t.tipoVeiculo == 'CAVALO_MECANICO'),
         isTrue,
       );
 

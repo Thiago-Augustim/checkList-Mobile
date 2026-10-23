@@ -1,19 +1,36 @@
 import 'dart:convert';
 
-String formatarTipoVeiculo(String tipo) {
+String normalizarCodigoTipoVeiculo(String tipo) {
   switch (tipo.trim().toUpperCase()) {
-    case 'CARRO':
-      return 'Carro Leve / Passeio';
-    case 'UTILITARIO':
-      return 'Utilitário / VUC';
-    case 'TOCO':
-      return 'Caminhão Toco (4x2)';
-    case 'TRUCK':
-      return 'Caminhão Truck (6x2)';
     case 'CAVALO':
-      return 'Cavalo Mecânico';
+    case 'CAVALO-MECANICO':
+    case 'CAVALO_MECANICO':
+      return 'CAVALO_MECANICO';
     case 'CARRETA':
-      return 'Carreta / Implemento';
+    case 'REBOQUE':
+      return 'REBOQUE';
+    case 'UTILITARIO':
+    case 'CAMINHONETE':
+      return 'CAMINHONETE';
+    default:
+      return tipo.trim().toUpperCase();
+  }
+}
+
+String formatarTipoVeiculo(String tipo) {
+  switch (normalizarCodigoTipoVeiculo(tipo)) {
+    case 'CARRO':
+      return 'CARRO';
+    case 'CAMINHONETE':
+      return 'CAMINHONETE';
+    case 'TOCO':
+      return 'TOCO';
+    case 'TRUCK':
+      return 'TRUCK';
+    case 'CAVALO_MECANICO':
+      return 'CAVALO-MECANICO';
+    case 'REBOQUE':
+      return 'REBOQUE';
     default:
       return tipo;
   }
@@ -101,7 +118,7 @@ class VeiculoCatalogoModel {
       id: json['id'] as String,
       placa: json['placa'] as String,
       modelo: json['modelo'] as String,
-      tipo: json['tipo'] as String,
+      tipo: normalizarCodigoTipoVeiculo(json['tipo'] as String),
       kmAtual: (json['kmAtual'] as num).toInt(),
     );
   }
@@ -188,7 +205,7 @@ class ChecklistTemplateModel {
     required this.id,
     required this.titulo,
     this.descricao,
-    this.tipoVeiculo = 'CAVALO',
+    this.tipoVeiculo = 'CAVALO_MECANICO',
     required this.perguntas,
   });
 
@@ -201,7 +218,9 @@ class ChecklistTemplateModel {
       id: json['id'] as String,
       titulo: json['titulo'] as String,
       descricao: json['descricao'] as String?,
-      tipoVeiculo: (json['tipoVeiculo'] as String? ?? 'CAVALO').toUpperCase(),
+      tipoVeiculo: normalizarCodigoTipoVeiculo(
+        json['tipoVeiculo'] as String? ?? 'CAVALO_MECANICO',
+      ),
       perguntas: rawPerguntas.map(PerguntaTemplateModel.fromJson).toList(),
     );
   }
